@@ -1,0 +1,15 @@
+<h2>Child2 Spreadsheet</h2>
+<button class="workbookButton" (click)="workbookDownload()">
+    <label>Download</label>
+  </button>
+  <button class="workbookButton" (click)="workbookSave()">
+    <label>Save Workbook</label>
+  </button>
+  <button>
+    <a routerLinkActive="active" target="_blank" routerLink="/child1">Child1 Spreadsheet</a>
+  </button>
+  <button>
+    <a routerLinkActive="active" target="_blank" routerLink="/child2">Child2 Spreadsheet</a>
+  </button>
+<igx-spreadsheet #spreadsheet height="500px" width="100%">
+</igx-spreadsheet>
