@@ -1,11 +1,11 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { IgxSpreadsheetComponent, SpreadsheetCell, SpreadsheetCellEditMode } from 'igniteui-angular-spreadsheet';
-import { FormatConditionAboveBelow, Workbook, WorkbookColorInfo, WorkbookSaveOptions, WorksheetHyperlink } from 'igniteui-angular-excel';
-import { Color } from 'igniteui-angular-core';
+import { CellReferenceMode, FormatConditionAboveBelow, Formula, Workbook, WorkbookColorInfo, WorkbookSaveOptions, WorksheetHyperlink } from 'igniteui-angular-excel';
+import { Color, Key } from 'igniteui-angular-core';
 import * as XLSX from 'xlsx';
 import { HttpClient } from '@angular/common/http';
 import { AppService } from 'src/app/app.service';
-import { ExcelUtility } from 'src/app/ExcelUtility';
+import { AlphaBetica, ExcelUtility } from 'src/app/ExcelUtility';
 //import { Workbook } from "exceljs";
 
 @Component({
@@ -51,82 +51,130 @@ export class ParentComponent implements OnInit {
   }
 
   ngDoCheck() {
-    if (this.loadThis)
-      this.appSerrvice.getParentWorbookData().subscribe(res => {
-        this.parentData = res;
-        this.parentData.forEach(function (v: any) { delete v.product });
-        const opt = new WorkbookSaveOptions();
-        opt.type = "blob";
-        this.spreadsheet.workbook.save(opt, (d) => {
-          let fileReader = new FileReader();
-          fileReader.readAsBinaryString(d as Blob);
-          fileReader.onload = (e: any) => {
-            var workbook = XLSX.read(fileReader.result, { type: 'binary' });
-            var sheetNames = workbook.SheetNames;
-            this.ExcelData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetNames[0]]);
-            var comparData = this.ExcelData.slice(0, this.ExcelData.length-1);
-            this.parentData.forEach((o: { [x: string]: any; }) => {
-              delete o['products'];
-            });
-            const sheet1 : any= {};
-            var count = 0;
-            comparData.forEach((x:any)=>{
-                 var values = { name : x.Name , monday : x.Monday , tuesday : x.Tuesday , 
-                  wednesday : x.Wednesday, thursday : x.Thursday, friday : x.Friday, saturday : x.Saturday, sunday : x.Sunday };
-                  sheet1[count] = values;
-                  count ++;
-            })
-            const sheet2 : any= {};
-            count = 0;
-            this.parentData.forEach((x:any)=>{
-                 var values = { name : x.name , monday : x.monday , tuesday : x.tuesday , 
-                  wednesday : x.wednesday, thursday : x.thursday, friday : x.friday, saturday : x.saturday, sunday : x.sunday };
-                  sheet2[count] = values;
-                  count ++;
-            })
-            const comparDataCount = comparData.length;
-            const ExcelDataCount = this.parentData.length;
-            if(comparDataCount === ExcelDataCount) {
-              this.existOrNot = (JSON.stringify(sheet1) === JSON.stringify(sheet2)) 
-            } else {
-              this.existOrNot = false;
-            }
-            if (!this.existOrNot) { 
-              window.location.reload();
-              this.loadThis = true;
-            } else {
-              this.loadThis = true;
-            }
-          }
-        }, (e) => {
-        });
-      });
+    // if (this.loadThis)
+    //   this.appSerrvice.getParentWorbookData().subscribe(res => {
+    //     this.parentData = res;
+    //     this.parentData.forEach(function (v: any) { delete v.product });
+    //     const opt = new WorkbookSaveOptions();
+    //     opt.type = "blob";
+    //     this.spreadsheet.workbook.save(opt, (d) => {
+    //       let fileReader = new FileReader();
+    //       fileReader.readAsBinaryString(d as Blob);
+    //       fileReader.onload = (e: any) => {
+    //         var workbook = XLSX.read(fileReader.result, { type: 'binary' });
+    //         var sheetNames = workbook.SheetNames;
+    //         this.ExcelData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetNames[0]]);
+    //         var comparData = this.ExcelData.slice(0, this.ExcelData.length-1);
+    //         this.parentData.forEach((o: { [x: string]: any; }) => {
+    //           delete o['products'];
+    //         });
+    //         const sheet1 : any= {};
+    //         var count = 0;
+    //         comparData.forEach((x:any)=>{
+    //              var values = { name : x.Name , monday : x.Monday , tuesday : x.Tuesday , 
+    //               wednesday : x.Wednesday, thursday : x.Thursday, friday : x.Friday, saturday : x.Saturday, sunday : x.Sunday };
+    //               sheet1[count] = values;
+    //               count ++;
+    //         })
+    //         const sheet2 : any= {};
+    //         count = 0;
+    //         this.parentData.forEach((x:any)=>{
+    //              var values = { name : x.name , monday : x.monday , tuesday : x.tuesday , 
+    //               wednesday : x.wednesday, thursday : x.thursday, friday : x.friday, saturday : x.saturday, sunday : x.sunday };
+    //               sheet2[count] = values;
+    //               count ++;
+    //         })
+    //         const comparDataCount = comparData.length;
+    //         const ExcelDataCount = this.parentData.length;
+    //         if(comparDataCount === ExcelDataCount) {
+    //           this.existOrNot = (JSON.stringify(sheet1) === JSON.stringify(sheet2)) 
+    //         } else {
+    //           this.existOrNot = false;
+    //         }
+    //         if (!this.existOrNot) { 
+    //           window.location.reload();
+    //           this.loadThis = true;
+    //         } else {
+    //           this.loadThis = true;
+    //         }
+    //       }
+    //     }, (e) => {
+    //     });
+    //   });
   }
   
   ngOnInit() {
-    this.appSerrvice.getFile().subscribe(data => {
-      var file = new File([data], "parent");
-      ExcelUtility.load(file).then((w) => {
-        this.appSerrvice.getParentWorbookData().subscribe(res => {
-          this.parentData = res;
-          var c = 1;
-          this.spreadsheet.workbook = w;
-          this.parentData.forEach(function (v: any) { delete v.product });
-          this.parentData.forEach((x: any) => {
-            this.spreadsheet.activeWorksheet.rows(c).cells(0).value = x.name;
-            this.spreadsheet.activeWorksheet.rows(c).cells(1).value = x.monday;
-            this.spreadsheet.activeWorksheet.rows(c).cells(2).value = x.tuesday;
-            this.spreadsheet.activeWorksheet.rows(c).cells(3).value = x.wednesday;
-            this.spreadsheet.activeWorksheet.rows(c).cells(4).value = x.thursday;
-            this.spreadsheet.activeWorksheet.rows(c).cells(5).value = x.friday;
-            this.spreadsheet.activeWorksheet.rows(c).cells(6).value = x.saturday;
-            this.spreadsheet.activeWorksheet.rows(c).cells(7).value = x.sunday;
-            c++;
+    this.appSerrvice.getParentWorbookData().subscribe((res:any) => {
+      this.parentData = res;
+      // var sheetTotalData = [];
+      // for(var d = 0; d < this.parentData.length; d++){
+      //   var objectKeys = Object.keys(this.parentData[d][this.parentData[d].length - 1]);
+      //   var objectValues =  Object.values(this.parentData[d][this.parentData[d].length - 1]);
+      //   var list : any = {};
+      //   for (var i = 0; i < objectKeys.length; i++) {
+      //     if(objectKeys[i] == "Products") { objectKeys[i] = "Name" };
+      //     if(objectValues[i] == "Total") { objectValues[i] = "child" + Number(d + 1)  }
+      //     list[objectKeys[i]] = objectValues[i];
+      //   } 
+      //   sheetTotalData.push(list);
+      // }
+      debugger;
+      //var jsonSheetData = JSON.stringify(this.parentData);
+      const formData = new FormData();
+      formData.append('file', this.parentData);
+      this.appSerrvice.getParentData(this.parentData).subscribe(res => { 
+        this.appSerrvice.getParentFile().subscribe(data => {
+          var file = new File([data], "parent");
+          ExcelUtility.load(file).then((w) => {
+            this.spreadsheet.workbook = w;
+            const obj = JSON.parse(this.parentData);
+            for (var d = 1; d <= 27; d++) {
+              this.spreadsheet.activeWorksheet.columns(d).cellFormat.formatString = "0";
+            }
+            // var objectKeys = Object.keys(this.parentData[0][this.parentData[0].length - 1]);
+            // for(var i = 1; i <= objectKeys.length; i++)
+            // {
+            //   this.spreadsheet.activeWorksheet.columns(i).cellFormat.formatString = "0";
+            //   // var sumFormula = Formula.parse("=SUM(" + AlphaBetica[i] + "1:" + AlphaBetica[i] + "" + this.ExcelData.length + ")", CellReferenceMode.A1);
+            //   // sumFormula.applyTo(this.spreadsheet.activeWorksheet.rows(this.ExcelData.length).cells(i));
+            // }
+
           });
-          this.loadThis = true;
         });
       });
+      // const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(sheetTotalData);
+      // const wb: XLSX.WorkBook = XLSX.utils.book_new();
+      // XLSX.utils.book_append_sheet(wb, ws, 'test');
+      // XLSX.writeFile(wb, "test.xlsx");
+      
+      // //var jsonSheetData = JSON.stringify(sheetTotalData);
+      // const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(sheetTotalData);
+      // const wb: XLSX.WorkBook = XLSX.utils.book_new();
+      // XLSX.utils.book_append_sheet(wb, ws, 'test');
+      // XLSX.writeFile(wb, "test.xlsx");
+      // this.appSerrvice.getFile().subscribe(data => {
+      //   var file = new File([data], "parent");
+      //   ExcelUtility.load(file).then((w) => {
+          
+      //   });
+      // });
+      // var c = 1;
+      // this.spreadsheet.workbook = w;
+      // this.parentData.forEach(function (v: any) { delete v.product });
+      // this.parentData.forEach((x: any) => {
+      //   this.spreadsheet.activeWorksheet.rows(c).cells(0).value = x.name;
+      //   this.spreadsheet.activeWorksheet.rows(c).cells(1).value = x.monday;
+      //   this.spreadsheet.activeWorksheet.rows(c).cells(2).value = x.tuesday;
+      //   this.spreadsheet.activeWorksheet.rows(c).cells(3).value = x.wednesday;
+      //   this.spreadsheet.activeWorksheet.rows(c).cells(4).value = x.thursday;
+      //   this.spreadsheet.activeWorksheet.rows(c).cells(5).value = x.friday;
+      //   this.spreadsheet.activeWorksheet.rows(c).cells(6).value = x.saturday;
+      //   this.spreadsheet.activeWorksheet.rows(c).cells(7).value = x.sunday;
+      //   c++;
+      // });
+      // this.loadThis = true;
     });
+    
   }
   public openFile(input: HTMLInputElement): void {
     if (input.files == null || input.files.length === 0) {

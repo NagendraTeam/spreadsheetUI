@@ -107,13 +107,13 @@ export class Child2Component implements OnInit {
         var workbook = XLSX.read(fileReader.result, { type: 'binary' });
         var sheetNames = workbook.SheetNames;
         this.ExcelData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetNames[0]]);
-        this.ExcelData.forEach(function(v: any){ delete v.total });
-        for(var i= 1; i <= 7; i++){
-          debugger;
-          var sumFormula = Formula.parse("=SUM("+AlphaBetica[i]+"1:"+AlphaBetica[i]+""+this.ExcelData.length+")", CellReferenceMode.A1);
-          sumFormula.applyTo(this.spreadsheet.activeWorksheet.rows(this.ExcelData.length).cells(i));
-        }
-        this.appSerrvice.InsertChild2Data(this.ExcelData).subscribe((response: any) => {
+        //this.ExcelData.forEach(function(v: any){ delete v.total });
+        // for(var i= 1; i <= 7; i++){
+        //   debugger;
+        //   var sumFormula = Formula.parse("=SUM("+AlphaBetica[i]+"1:"+AlphaBetica[i]+""+this.ExcelData.length+")", CellReferenceMode.A1);
+        //   sumFormula.applyTo(this.spreadsheet.activeWorksheet.rows(this.ExcelData.length).cells(i));
+        // }
+        this.appSerrvice.InsertDealerDetails("child2", JSON.stringify(this.ExcelData)).subscribe((response: any) => {
           this.workbookSaveInFolder();
         });
       }

@@ -51,6 +51,9 @@ export class Child1Component implements OnInit {
       var file = new File([data], "child");
       ExcelUtility.load(file).then((w) => {
         this.spreadsheet.workbook = w;
+        
+        //this.spreadsheet.activeWorksheet.sortSettings
+        //this.spreadsheet.activeWorksheet.rows(1).cellFormat
         //this.spreadsheet.activeWorksheet.columns(2).cellFormat.setFormatting(this.spreadsheet.activeWorksheet.columns(1).cellFormat);
         //this.spreadsheet.activeWorksheet.rows(4).cells(1).applyFormula("=Sum(B2,B3,B4");
 
@@ -106,15 +109,15 @@ export class Child1Component implements OnInit {
         var workbook = XLSX.read(fileReader.result, { type: 'binary' });
         var sheetNames = workbook.SheetNames;
         this.ExcelData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetNames[0]]);
-        this.ExcelData.forEach(function(v: any){ delete v.total });
+        //this.ExcelData.forEach(function(v: any){ delete v.total });
         // for(var j = 2; j <= this.ExcelData.length; j++){
         //   this.spreadsheet.activeWorksheet.hyperlinks().add(new WorksheetHyperlink("A" + j, "http://www.infragistics.com", "+", "Add Row Above"));
         // }
-        for (var i = 1; i <= 7; i++) {
-          var sumFormula = Formula.parse("=SUM(" + AlphaBetica[i] + "1:" + AlphaBetica[i] + "" + this.ExcelData.length + ")", CellReferenceMode.A1);
-          sumFormula.applyTo(this.spreadsheet.activeWorksheet.rows(this.ExcelData.length).cells(i));
-        }
-        this.appSerrvice.InsertChild1Data(this.ExcelData).subscribe((response: any) => {
+        // for (var i = 1; i <= 7; i++) {
+        //   var sumFormula = Formula.parse("=SUM(" + AlphaBetica[i] + "1:" + AlphaBetica[i] + "" + this.ExcelData.length + ")", CellReferenceMode.A1);
+        //   sumFormula.applyTo(this.spreadsheet.activeWorksheet.rows(this.ExcelData.length).cells(i));
+        // }
+        this.appSerrvice.InsertDealerDetails("child1", JSON.stringify(this.ExcelData)).subscribe((response: any) => {
           this.workbookSaveInFolder();
         });
       }
