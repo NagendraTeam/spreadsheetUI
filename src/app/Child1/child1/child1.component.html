@@ -36,8 +36,15 @@
   </button>
   <button>
     <a routerLinkActive="active" target="_blank" routerLink="/child2">Child2 Spreadsheet</a>
-  </button>
- 
+  </button>&nbsp;&nbsp;
+  <label>Total Rows:&nbsp;{{totalCount}}</label>&nbsp;&nbsp;
+  <label>Row Id of Total:&nbsp;{{totalRowId}}</label>
+  <select #select style="float: right;height: 21px;" (change)="onChange()">
+    <option value="100">Select</option>
+    <option *ngFor="let item of this.empList;let i = index" [value]="item.empid" [selected]="i == 100">
+      {{item.name}}
+    </option>
+  </select>
   <igx-spreadsheet #spreadsheet height="500px" width="100%">
   </igx-spreadsheet>
 

@@ -28,6 +28,7 @@ export class ParentComponent implements OnInit {
   excelFile: any;
   loadThis: boolean = false;
   existOrNot: boolean = false;
+  
 
   public isProtected: boolean;
   constructor(private appSerrvice : AppService,private httpClient: HttpClient) {
@@ -102,7 +103,9 @@ export class ParentComponent implements OnInit {
     //     });
     //   });
   }
-  
+  refresh(): void {
+    window.location.reload();
+  }  
   ngOnInit() {
     this.appSerrvice.getParentWorbookData().subscribe((res:any) => {
       this.parentData = res;

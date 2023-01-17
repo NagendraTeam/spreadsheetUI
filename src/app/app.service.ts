@@ -11,20 +11,19 @@ export class AppService {
   //   return this.httpClient.post('https://localhost:44328/api/workbook/InsertChild1Data',formdata);
   // }
   getParentData(data: string){
-    debugger;
     let headers = new HttpHeaders ({ 'Content-Type': 'application/json' });
     return this.httpClient.post('https://localhost:44328/api/workbook/getParentFile?data=' + data , headers);
   }
   InsertDealerDetails(name: string, spreadsheetInfo: string){
-    debugger;
     let headers = new HttpHeaders ({ 'Content-Type': 'application/json' });
+    headers.append('Access-Control-Allow-Origin', 'http://localhost:44328');
+    headers.append('Access-Control-Allow-Credentials', 'true');
     return this.httpClient.post('https://localhost:44328/api/workbook/InsertDealerDetails?name='+name+'&sheetInfo='+ spreadsheetInfo, headers);
   }
   InsertChild2Data(formdata: FormData){
     return this.httpClient.post('https://localhost:44328/api/workbook/InsertChild2Data',formdata);
   }
   getParentWorbookData() {
-    debugger;
     return this.httpClient.get('https://localhost:44328/api/workbook/GetParentWorkbookData');
   }
   getChild1WorbookData() {
