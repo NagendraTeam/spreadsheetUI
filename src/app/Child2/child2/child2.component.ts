@@ -57,11 +57,14 @@ export class Child2Component implements OnInit {
     });
   }
   
-  public openFile(input: HTMLInputElement): void {
-    if (input.files == null || input.files.length === 0) {
+  public openFile(input : any): void {
+
+    const target: DataTransfer = <DataTransfer>(input.target);
+
+    if (target.files == null || target.files.length === 0) {
     return;
     }
-    ExcelUtility.load(input.files[0]).then((w) => {
+    ExcelUtility.load(target.files[0]).then((w) => {
     this.spreadsheet.workbook = w;
     }, (e) => {
         console.error("Workbook Load Error:" + e);
@@ -184,6 +187,7 @@ export class Child2Component implements OnInit {
   //     alert(f);
   //  })
   }
+  
   public onChange() {
 
     this.spreadsheet.activeWorksheet.protect();
